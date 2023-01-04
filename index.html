@@ -7,8 +7,32 @@
     <title>Library App</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"/>
 </head>
 <body>
+<div id="app">
 
+</div>
+<div class="popup_form" >
+    <form action="" class="form_container" id="add_form">
+        <div class="form_title">Add new book</div>
+        <label for="title">Title:</label>
+        <input type="text" placeholder="Title" name="title" required>
+
+        <label for="author">Author:</label>
+        <input type="text" placeholder="Author" name="author" required>
+
+        <label for="pages">Pages:</label>
+        <input type="number" placeholder="Pages" name="nrOfPages" required>
+        <div id="form_checkbox">
+            <label for="isread">Did you read it?</label>
+            <input type="checkbox" name="isRead">
+        </div>
+        <div class="button_container">
+            <button type="submit" class="form_button btn_add">Add</button>
+            <button type="button" class="form_button btn_cancel">Close</button>
+        </div>
+    </form>
+</div>
 </body>
 </html>
