@@ -10,66 +10,89 @@ function Book(id, title, author, nrOfPages, isRead) {
     this.nrOfPages = nrOfPages;
     this.isRead = isRead;
     this.changeReadStatus = function () {
-      this.isRead = !this.isRead;
-    };
-    this.info = function () {
-        return `${title} by ${author}, ${nrOfPages} pages, ${
-            !isRead ? "not" : "already"
-        } read ${!isRead ? "yet" : ""}`;
+        this.isRead = !this.isRead;
     };
 }
 
-function addBookToLibrary() {
-    let book = new Book();
-    book.id = 'book_' + myLibrary.length;
-    book.title = prompt('Title: ');
-    book.author = prompt('Author: ');
-    book.nrOfPages = prompt('Number of pages: ');
-    book.isRead = prompt('Did you red it? (yes, no): ') === 'yes';
-    myLibrary.push(book);
-}
+const getBookIndexById = (idx) => myLibrary.findIndex(book => book.id === idx);
 
 const render = () => {
     document.querySelector('#app').innerHTML = getHTML();
+    unbind();
+    bind();
+}
 
+const unbind = () => {
     const deleteButtons = document.querySelectorAll('.delete');
     deleteButtons.forEach((btn) => {
         const selectedBookID = btn.parentNode.id;
-        btn.addEventListener('click', () => {
-            const bookIdx = myLibrary.findIndex(book => book.id === selectedBookID);
-            myLibrary.splice(bookIdx, 1);
-            render();
-        });
+        btn.removeEventListener('click', deleteBookEventFn.bind(event, selectedBookID));
     });
 
     const readToggles = document.querySelectorAll('.read_toggle_input');
     readToggles.forEach((toggle) => {
         const selectedBookID = toggle.parentNode.parentNode.parentNode.id;
-        toggle.addEventListener('click', () => {
-            const bookIdx = myLibrary.findIndex(book => book.id === selectedBookID);
-            myLibrary[bookIdx].changeReadStatus();
-        });
+        toggle.removeEventListener('click', readToggleEventFn.bind(event, selectedBookID));
     });
 
     const addButton = document.querySelector('.add_book');
-    addButton.addEventListener('click', () => {
-        document.querySelector(".popup_form").style.display = "block";
-    });
+    addButton.removeEventListener('click', bookAddBtnEventFn);
 
     const formCloseButton = document.querySelector('.btn_cancel');
-    formCloseButton.addEventListener('click', () => {
-        document.querySelector(".popup_form").style.display = "none";
-    });
+    formCloseButton.removeEventListener('click', formCloseEventFn);
 
     const formAddButton = document.querySelector('.btn_add');
-    formAddButton.addEventListener('click', (event) => {
-        event.preventDefault()
-        addNewBook();
-        document.querySelector(".popup_form").style.display = "none";
-        render();
+    //warum funktioniert es hier mit dem .bind nicht aber oben schon?
+    formAddButton.removeEventListener('click', formAddEventFn);
+}
 
+const bind = () => {
+    const deleteButtons = document.querySelectorAll('.delete');
+    deleteButtons.forEach((btn) => {
+        const selectedBookID = btn.parentNode.id;
+        btn.addEventListener('click', deleteBookEventFn.bind(event, selectedBookID));
     });
 
+    const readToggles = document.querySelectorAll('.read_toggle_input');
+    readToggles.forEach((toggle) => {
+        const selectedBookID = toggle.parentNode.parentNode.parentNode.id;
+        toggle.addEventListener('click', readToggleEventFn.bind(event, selectedBookID));
+    });
+
+    const addButton = document.querySelector('.add_book');
+    addButton.addEventListener('click', bookAddBtnEventFn);
+
+    const formCloseButton = document.querySelector('.btn_cancel');
+    formCloseButton.addEventListener('click', formCloseEventFn);
+
+    const formAddButton = document.querySelector('.btn_add');
+    formAddButton.addEventListener('click', formAddEventFn);
+}
+
+const deleteBookEventFn = (selectedBookID) => {
+    myLibrary.splice(getBookIndexById(selectedBookID), 1);
+    render();
+}
+
+const readToggleEventFn = (selectedBookID) => {
+    myLibrary[getBookIndexById(selectedBookID)].changeReadStatus();
+}
+
+const formAddEventFn = (event) => {
+    event.preventDefault();
+    addNewBook();
+    document.querySelector(".popup_form").style.display = "none";
+    render();
+}
+
+const boundFormAddEventFn = formAddEventFn.bind(null);
+
+const formCloseEventFn = () => {
+    document.querySelector(".popup_form").style.display = "none";
+}
+
+const bookAddBtnEventFn = () => {
+    document.querySelector(".popup_form").style.display = "block";
 }
 
 const addNewBook = () => {
@@ -81,13 +104,14 @@ const addNewBook = () => {
     }
     book.id = 'book_' + myLibrary.length;
     myLibrary.push(book);
+    form.reset();
 }
 
 const header = () => {
     return `<div class="header"><div class="title">My Library</div><button class="add_book">+</button></div>`;
 }
 
-const readToogle = (isRead) => {
+const readToggle = (isRead) => {
     return `<div class="read_toggle">Not read<label class="switch">
             <input class = "read_toggle_input" type="checkbox" ${isRead ? 'checked' : ''}>
             <span class="slider round"></span>
@@ -99,14 +123,13 @@ const bookCard = (book) => {
         <div class="card_title">${book.title}</div>
         <div>${book.author}</div>
         <div>${book.nrOfPages} pages</div>
-        ${readToogle(book.isRead)}
+        ${readToggle(book.isRead)}
         <div class="delete"><i class="fa fa-trash-can"></i></div>
     </div>`;
 }
 
 const bookCards = () => {
     return myLibrary.map((book, index) => {
-        const bookID = `book_${index}`;
         return bookCard(book);
     }).join('');
 }

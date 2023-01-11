@@ -131,6 +131,7 @@ input:checked + .slider:before {
     align-items: center;
     gap: 0.5em;
     width: 280px;
+    justify-content: space-between;
 }
 
 .card:hover {
